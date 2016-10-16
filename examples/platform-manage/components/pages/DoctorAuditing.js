@@ -154,9 +154,16 @@ function mapStateToProps(state, props) {
   return {
     hospitalList: {
       typeCode: 'a',
-      typeText: '测测看',
+      typeText: '医院',
       typeItemList: [
-        {value: 'a', text: 'a'}
+        {value: 'a', text: '浙江医院'}
+      ]
+    },
+    positionList: {
+      typeCode: 'b',
+      typeText: '医生',
+      typeItemList: [
+        {value: 'zhao', text: '找医生'}
       ]
     }
   }

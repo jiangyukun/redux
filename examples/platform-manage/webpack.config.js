@@ -24,7 +24,8 @@ module.exports = {
         exclude: /node_modules/,
         include: __dirname
       },
-      {test: /\.scss$/, exclude: /node_modules/, loader: 'style!css!autoprefixer!sass?sourceMap'}
+      {test: /\.scss$/, exclude: /node_modules/, loader: 'style!css!autoprefixer!sass?sourceMap'},
+      {test: /\.(jpg|png)$/, loader: "url?limit=8192"}
     ]
   }
 }

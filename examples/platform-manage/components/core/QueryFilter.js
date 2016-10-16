@@ -1,7 +1,7 @@
 /**
  * Created by jiangyu2016 on 16/10/15.
  */
-import React, {Component} from 'react'
+import React, {Component, cloneElement} from 'react'
 import classnames from 'classnames'
 
 import FilterItem from './query-filter/FilterItem'
@@ -18,17 +18,27 @@ export default class QueryFilter extends Component {
   }
 
   toggleMoreState() {
-    this.setState({
-      more: !this.state.more
-    })
+    this.setState({more: !this.state.more})
   }
 
-  removeFilterItem() {
+  addFilterItem(filterCondition) {
+    this.state.filterConditions.push(filterCondition)
+    this.forceUpdate()
+  }
 
+  removeFilterItem(typeCode) {
+    let newFilterCondition = this.state.filterConditions.filter(filterCondition=> {
+      if (filterCondition.typeCode == typeCode) {
+        filterCondition.filterItem.reset()
+      }
+      return filterCondition.typeCode != typeCode
+    })
+    this.setState({filterConditions: newFilterCondition})
   }
 
   clearAllFilterCondition() {
-
+    this.state.filterConditions.forEach(filterCondition=> filterCondition.filterItem.reset())
+    this.setState({filterConditions: []})
   }
 
   filter() {
@@ -38,49 +48,24 @@ export default class QueryFilter extends Component {
   }
 
   render() {
-
-    var self = this;
-
     let buttons = this.props.children.map(child=> {
       if (child.type == 'button') {
         return child
       }
     })
 
-    let filterItems = this.props.children.map(child=> {
+    let filterItems = this.props.children.map((child, index)=> {
       if (child.type == FilterItem) {
-        return child
+        return cloneElement(child, {
+          key: index,
+          addFilterItem: (...args)=>this.addFilterItem(...args),
+          removeFilterItem: (...args)=>this.removeFilterItem(...args)
+        })
       }
     })
 
-    function getContainerClassName() {
-      return classnames('query-filter', self.props.className)
-    }
-
-    function getMoreBtnClassName() {
-      return classnames('group-select-btn', {
-        'selected': self.state.more
-      })
-    }
-
-    function getSelectFilterItemClassName() {
-      return classnames('child', 'group-select-more', {
-        'hide': !self.state.more
-      })
-    }
-
-    function getClearBtnClassName() {
-      return classnames('clear', {'disabled': self.state.filterConditions.length == 0})
-    }
-
-    function showSelectFilterItem() {
-      function getClassName(filterCondition) {
-        return classnames('select-result select-result2 select-resultqage', {
-          invalidate: filterCondition.invalidate
-        })
-      }
-
-      function showErrorTipUI(filterCondition) {
+    var showSelectFilterItem = () => {
+      var showErrorTipUI = filterCondition=> {
         if (filterCondition.invalidate) {
           return (
             <i className="fa fa-warning filter-item-warning" title={filterCondition.errorTip}></i>
@@ -89,19 +74,20 @@ export default class QueryFilter extends Component {
         return null
       }
 
-      return self.state.filterConditions.map((filterCondition, index)=> {
+      return this.state.filterConditions.map((filterCondition, index)=> {
         return (
-          <a key={index} className={getClassName(filterCondition)}>
-            <span>{typeInfo.typeText}： {typeInfo.itemText}</span>
-            {showErrorTipUI()}
-            <i className="icon-close" onClick={this.removeFilterItem(filterCondition)}></i>
+          <a key={index}
+             className={classnames('select-result select-result2 select-resultqage', {'invalidate': filterCondition.invalidate})}>
+            <span>{filterCondition.typeText}： {filterCondition.typeItem.text}</span>
+            {showErrorTipUI(filterCondition)}
+            <i className="icon-close" onClick={e=>this.removeFilterItem(filterCondition.typeCode)}></i>
           </a>
         )
       })
     }
 
     return (
-      <div className={getContainerClassName()}>
+      <div className={classnames('query-filter', this.props.className)}>
         <div className="group-tools">
           <div className="filter-toolbar">
             {buttons}
@@ -113,7 +99,8 @@ export default class QueryFilter extends Component {
                 <button className="icon-search-btn" onClick={e=>this.filter()}></button>
               </form>
             </div>
-            <div className={getMoreBtnClassName()} onClick={e=>this.toggleMoreState()}>
+            <div className={classnames('group-select-btn', {'selected': this.state.more})}
+                 onClick={e=>this.toggleMoreState()}>
               <a>
                 <span>更多筛选</span>
                 <i className="icon-arrow-blue"></i>
@@ -121,7 +108,7 @@ export default class QueryFilter extends Component {
             </div>
           </div>
           <div>
-            <div className="" className={getSelectFilterItemClassName()}>
+            <div className={classnames('child', 'group-select-more', {'hide': !this.state.more})}>
               <div className="group-top">
                 <div></div>
               </div>
@@ -135,12 +122,12 @@ export default class QueryFilter extends Component {
                   </div>
                 </div>
                 <div className="select-result">
-                  <button className={getClearBtnClassName()}
-                          onClick={this.clearAllFilterCondition()}
+                  <button className={classnames('clear', {'disabled': this.state.filterConditions.length == 0})}
+                          onClick={e=>this.clearAllFilterCondition()}
                           disabled={this.state.filterConditions.length == 0}>
                     清除
                   </button>
-                  <button className="submit" onClick={this.filter()}>确定</button>
+                  <button className="submit" onClick={e=>this.filter()}>确定</button>
                 </div>
                 <div className="clear disabled"></div>
               </div>

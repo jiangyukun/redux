@@ -14,17 +14,21 @@ export default class FilterItem extends Component {
 
   select(typeItem) {
     this.setState({'selected': typeItem.typeCode})
+    let {typeCode, typeText} = this.props.item
+
+    this.props.addFilterItem({typeCode, typeText, typeItem, filterItem: this})
   }
 
   selectDefault() {
     this.setState({'selected': ''})
+    this.props.removeFilterItem(this.props.item.typeCode)
+  }
+  
+  reset() {
+    this.setState({'selected': ''})
   }
 
   render() {
-
-    var getDefaultClassName = () => {
-      return classnames('filter-item-single', {'selected': this.state.selected == ''})
-    }
 
     var showItemUI = ()=> {
       if (this.props.item.typeItemList.length > 2) {
@@ -34,13 +38,10 @@ export default class FilterItem extends Component {
     }
 
     var showItemRespective = ()=> {
-      var getTypeItemClassName = typeItem=> {
-        return classnames('filter-item-single', {'selected': typeItem.typeCode == this.state.selected})
-      }
-
       return this.props.item.typeItemList.map((typeItem, index)=> {
         return (
-          <li key={index} className={getTypeItemClassName(typeItem)}
+          <li key={index}
+              className={classnames('filter-item-single', {'selected': typeItem.typeCode == this.state.selected})}
               onClick={e=>this.select(typeItem)}>
             {typeItem.text}
           </li>
@@ -61,6 +62,9 @@ export default class FilterItem extends Component {
       )
     }
 
+
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+
     if (!this.props.item) {
       return null
     }
@@ -72,7 +76,9 @@ export default class FilterItem extends Component {
         </li>
         <li className="flex1 filter-items">
           <ul className="filter-item-main">
-            <li className={getDefaultClassName()} onClick={e=>this.selectDefault()}>不限</li>
+            <li className={classnames('filter-item-single', {'selected': this.state.selected == ''})}
+                onClick={e=>this.selectDefault()}>不限
+            </li>
             {showItemUI()}
           </ul>
         </li>
