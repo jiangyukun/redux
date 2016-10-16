@@ -5,6 +5,7 @@ import React, {Component, PropTypes} from 'react'
 import classnames from 'classnames'
 
 export default class PaginateList extends Component {
+  static pageSize = 10
 
   static  childContextTypes = {
     sort: PropTypes.func
@@ -18,7 +19,14 @@ export default class PaginateList extends Component {
 
   constructor() {
     super()
-    this.state = {currentPage: null}
+    this.state = {currentPage: 1}
+  }
+
+  getPageInfo() {
+    return {
+      start: this.state.currentPage,
+      limit: PaginateList.pageSize
+    }
   }
 
   sort(order) {
@@ -58,7 +66,6 @@ export default class PaginateList extends Component {
       })
     }
 
-
     return (
       <div className="paginate-list">
         <div className="table relative" fix-header="" fix-left="">
@@ -88,7 +95,6 @@ export default class PaginateList extends Component {
               </li>
 
               {showPages(this.props.listInfo.pages)}
-
 
               <li className="{'disabled': paginateListCtrl.currentPage == paginateListCtrl.pages.length}"
                   onClick={this.nextPage()}>

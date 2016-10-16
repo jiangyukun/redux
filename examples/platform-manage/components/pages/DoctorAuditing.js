@@ -5,14 +5,18 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import classnames from 'classnames'
+import {merge} from 'lodash'
 
+import BasePage from './base/BasePage'
 import QueryFilter from '../core/QueryFilter'
 import FilterItem from '../core/query-filter/FilterItem'
 import PaginateList from '../core/PaginateList'
 import SortBy from '../core/paginate-list/SortBy'
 import SelectStartEndDate from '../core/query-filter/custom/SelectStartEndDate'
 
-class DoctorAuditing extends Component {
+import {fetchDoctorList} from '../../actions'
+
+class DoctorAuditing extends BasePage {
 
   constructor(props) {
     super(props)
@@ -21,16 +25,20 @@ class DoctorAuditing extends Component {
     }
   }
 
-  fetch(pageInfo) {
-
+  fetch() {
+    this.pageInfo = this.refs.paginateList.getPageInfo()
+    this.filterConditions = this.refs.queryFilter.getFilterConditions()
+    this.props.fetchDoctorList(merge({}, this.pageInfo, this.handleFilterConditions()))
   }
 
-  filter(filterCondition) {
-
+  handleFilterConditions() {
+    return {
+      hospital: super.handleFilterCondition('hospital', 'value')
+    }
   }
 
-  activeItem() {
-
+  activeItem(doctor, index) {
+    this.setState({currentIndex: index})
   }
 
   editDoctor(doctor) {
@@ -54,7 +62,7 @@ class DoctorAuditing extends Component {
     function showDoctorPhoto(doctor) {
       if (doctor['doctor_Photo']) {
         return (
-          <div className="table-cell-look" ng-if="">
+          <div className="table-cell-look">
             <a ng-click={this.lookPicture(doctor['doctor_Photo'])}>查看</a>
           </div>
         )
@@ -76,7 +84,7 @@ class DoctorAuditing extends Component {
     return (
       <div className="app-function-page">
 
-        <QueryFilter filter={filterCondition=>this.filter(filterCondition)} className="big-label ">
+        <QueryFilter ref="queryFilter" filter={()=>this.fetch()} className="big-label ">
           <button className="btn btn-primary mr-20" ng-click="doctorAuditing.addDoctor();">注册</button>
           <button className="btn btn-primary mr-20"
                   onClick={this.editDoctor()}
@@ -91,7 +99,7 @@ class DoctorAuditing extends Component {
           </FilterItem>
         </QueryFilter>
 
-        <PaginateList fetch={pageInfo=>this.fetch(pageInfo)} listInfo={listInfo}>
+        <PaginateList ref="paginateList" fetch={()=>this.fetch()} listInfo={listInfo}>
           <table className="table table-striped table-hover" style={{'minWidth': '1200px'}}>
             <thead>
             <tr>
@@ -121,8 +129,8 @@ class DoctorAuditing extends Component {
 
                 return (
                   <tr key={index} className={getClass()}
-                      onClick={this.activeItem(doctor, index)}
-                      onDblClick={this.editDoctor(doctor)}>
+                      onClick={e=>this.activeItem(doctor, index)}
+                      onDblClick={e=>this.editDoctor(doctor)}>
                     <td>{doctor['phone']}</td>
                     <td>{doctor['doctor_Name']}</td>
                     <td>{doctor['hospital_Id']}</td>
@@ -155,11 +163,12 @@ class DoctorAuditing extends Component {
 
 function mapStateToProps(state, props) {
   return {
+    doctorList: state.fetchDoctorList,
     hospitalList: {
-      typeCode: 'a',
+      typeCode: 'hospital',
       typeText: '医院',
       typeItemList: [
-        {value: 'a', text: '浙江医院'}
+        {value: 'zhejiang hospital', text: '浙江医院'}
       ]
     },
     positionList: {
@@ -172,4 +181,6 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps)(DoctorAuditing)
+export default connect(mapStateToProps, {
+  fetchDoctorList
+})(DoctorAuditing)

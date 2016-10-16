@@ -13,6 +13,10 @@ export default class QueryFilter extends Component {
     this.state = {searchKey: '', more: false, filterConditions: []}
   }
 
+  getFilterConditions() {
+    return this.state.filterConditions
+  }
+
   searchKeyChange(e) {
 
   }

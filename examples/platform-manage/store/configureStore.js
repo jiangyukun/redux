@@ -2,8 +2,8 @@
  * Created by jiangyu2016 on 16/10/15.
  */
 
-
-import {createStore, combineReducers} from 'redux'
+import {createStore, combineReducers, applyMiddleware, compose} from 'redux'
+import thunk from 'redux-thunk'
 
 import * as reducers from '../reducers/'
 
@@ -38,5 +38,5 @@ export default function configureStore() {
         asideMessage: true
       }
     }
-  })
+  }, applyMiddleware(thunk))
 }
