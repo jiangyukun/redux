@@ -23,7 +23,7 @@ export default class FilterItem extends Component {
     this.setState({'selected': ''})
     this.props.removeFilterItem(this.props.item.typeCode)
   }
-  
+
   reset() {
     this.setState({'selected': ''})
   }

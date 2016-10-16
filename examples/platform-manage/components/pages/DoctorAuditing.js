@@ -7,8 +7,9 @@ import {connect} from 'react-redux'
 import classnames from 'classnames'
 
 import QueryFilter from '../core/QueryFilter'
-import PaginateList from '../core/PaginateList'
 import FilterItem from '../core/query-filter/FilterItem'
+import PaginateList from '../core/PaginateList'
+import SortBy from '../core/paginate-list/SortBy'
 import SelectStartEndDate from '../core/query-filter/custom/SelectStartEndDate'
 
 class DoctorAuditing extends Component {
@@ -94,7 +95,9 @@ class DoctorAuditing extends Component {
           <table className="table table-striped table-hover" style={{'minWidth': '1200px'}}>
             <thead>
             <tr>
-              <th className="th-left pl-15" width="150" sort-by="phone">手机号码</th>
+              <th className="th-left pl-15" width="150">
+                <SortBy by="phone">手机号码</SortBy>
+              </th>
               <th className="th-left pl-15" width="120">医生姓名</th>
               <th className="th-left pl-15" width="140">医院</th>
               <th className="th-left pl-15" width="120">科室</th>

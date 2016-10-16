@@ -74,9 +74,7 @@
     height: 400px;
 }
 
-th.th-left.pl-15 {
-    padding-left: 15px;
-}
+
 
 @media (min-width: 769px) {
     .modal-slg {

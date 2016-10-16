@@ -1,13 +1,27 @@
 /**
  * Created by jiangyu2016 on 16/10/15.
  */
-import React, {Component} from 'react'
+import React, {Component, PropTypes} from 'react'
 import classnames from 'classnames'
 
 export default class PaginateList extends Component {
+
+  static  childContextTypes = {
+    sort: PropTypes.func
+  }
+
+  getChildContext() {
+    return {
+      sort: order=> this.sort(order)
+    }
+  }
+
   constructor() {
     super()
     this.state = {currentPage: null}
+  }
+
+  sort(order) {
   }
 
   nextPage() {
