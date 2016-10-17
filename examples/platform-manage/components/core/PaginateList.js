@@ -4,6 +4,8 @@
 import React, {Component, PropTypes} from 'react'
 import classnames from 'classnames'
 
+import {calculatePageIndex} from '../../utils'
+
 export default class PaginateList extends Component {
   static pageSize = 10
 
@@ -25,46 +27,39 @@ export default class PaginateList extends Component {
   getPageInfo() {
     return {
       start: this.state.currentPage,
-      limit: PaginateList.pageSize
+      length: PaginateList.pageSize
     }
   }
 
   sort(order) {
+
   }
 
   nextPage() {
-
+    if (this.state.currentPage < this.pageTotal) {
+      this.toPage(this.state.currentPage + 1)
+    }
   }
 
   beforePage() {
-
+    if (this.state.currentPage > 1) {
+      this.toPage(this.state.currentPage - 1)
+    }
   }
 
-  toPage() {
-
+  toPage(page) {
+    if (this.state.currentPage != page) {
+      this.setState({currentPage: page})
+      this.props.getPageList()
+    }
   }
 
   render() {
 
-    var self = this
+    /* - - - - - - - - - - - - - - - - - - - - - - -  */
 
-    function showPages(pages) {
-      function getClassName(page) {
-        return classnames({'active': self.state.currentPage == page})
-      }
-
-      if (!pages) {
-        return null
-      }
-
-      return pages.map(page=> {
-        return (
-          <li key={page} className={getClassName(page)}>
-            <a onClick={this.toPage(page)}>{page}</a>
-          </li>
-        )
-      })
-    }
+    this.pageTotal = parseInt((this.props.total + PaginateList.pageSize - 1) / PaginateList.pageSize)
+    this.pageIndexs = calculatePageIndex(this.pageTotal, this.state.currentPage)
 
     return (
       <div className="paginate-list">
@@ -79,32 +74,42 @@ export default class PaginateList extends Component {
           </div>
         </div>
 
-        <div className="list-info">
-          <div className="list-count-info">
-            <span ng-if="paginateListCtrl.recordsTotal > 0">
-                当前第{this.state.currentPage}页，共{this.props.listInfo.total}条数据
+        {
+          this.props.total > 0 && <div className="list-info">
+            <div className="list-count-info">
+            <span>
+                当前第{this.state.currentPage}页，共{this.props.total}条数据
             </span>
+            </div>
+            <nav className="list-nav-button">
+              <ul className="pagination">
+                <li className={classnames({'disabled': this.state.currentPage == 1})}
+                    onClick={e=>this.beforePage()}>
+                  <a aria-label="Previous">
+                    上一页
+                  </a>
+                </li>
+
+                {
+                  this.pageIndexs.map(page=> {
+                    return (
+                      <li key={page} className={classnames({'active': this.state.currentPage == page})}>
+                        <a onClick={e=>this.toPage(page)}>{page}</a>
+                      </li>
+                    )
+                  })
+                }
+
+                <li className={classnames({'disabled': this.state.currentPage == this.pageTotal})}
+                    onClick={e=>this.nextPage()}>
+                  <a aria-label="Next">
+                    下一页
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
-          <nav ng-if="paginateListCtrl.pages.length > 0" className="list-nav-button">
-            <ul className="pagination">
-              <li ng-className="{'disabled': paginateListCtrl.currentPage == 1}"
-                  ng-click={this.beforePage()}>
-                <a aria-label="Previous">
-                  上一页
-                </a>
-              </li>
-
-              {showPages(this.props.listInfo.pages)}
-
-              <li className="{'disabled': paginateListCtrl.currentPage == paginateListCtrl.pages.length}"
-                  onClick={this.nextPage()}>
-                <a aria-label="Next">
-                  下一页
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        }
       </div>
     )
   }

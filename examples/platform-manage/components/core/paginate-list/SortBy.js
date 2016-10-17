@@ -3,6 +3,7 @@
  */
 import React, {Component, PropTypes} from 'react'
 import classnames from 'classnames'
+import events from 'dom-helpers'
 
 export default class SortBy extends Component {
   static contextTypes = {
@@ -11,11 +12,38 @@ export default class SortBy extends Component {
 
   constructor() {
     super()
+    this.handleDocumentClick = this.handleDocumentClick.bind(this)
     this.state = {active: false, order: 'default'}
+  }
+
+  componentDidMount() {
+    events.on(document, 'click', this.handleDocumentClick)
+  }
+
+  componentWillUnmount() {
+    events.off(document, 'click', this.handleDocumentClick)
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.active) {
+      this.activeFlag = true
+    }
+  }
+
+  handleDocumentClick() {
+    if (this.activeFlag) {
+      this.activeFlag = false
+    } else {
+      this.close()
+    }
   }
 
   toggle() {
     this.setState({active: !this.state.active})
+  }
+
+  close() {
+    this.setState({active: false})
   }
 
   sort(order) {

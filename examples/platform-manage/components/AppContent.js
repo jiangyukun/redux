@@ -4,7 +4,7 @@
 
 import React, {Component} from 'react'
 
-import DoctorAuditing from './pages/DoctorAuditing'
+import DoctorAuditing from './pages/doctor-auditing/DoctorAuditing'
 
 export default class AppContent extends Component  {
   render() {

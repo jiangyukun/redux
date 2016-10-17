@@ -1,20 +1,20 @@
 /**
  * Created by jiangyu2016 on 16/10/15.
  */
-
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import classnames from 'classnames'
 import {merge} from 'lodash'
 
-import BasePage from './base/BasePage'
-import QueryFilter from '../core/QueryFilter'
-import FilterItem from '../core/query-filter/FilterItem'
-import PaginateList from '../core/PaginateList'
-import SortBy from '../core/paginate-list/SortBy'
-import SelectStartEndDate from '../core/query-filter/custom/SelectStartEndDate'
+import BasePage from '../base/BasePage'
+import QueryFilter from '../../core/QueryFilter'
+import FilterItem from '../../core/query-filter/FilterItem'
+import PaginateList from '../../core/PaginateList'
+import SortBy from '../../core/paginate-list/SortBy'
+import SelectStartEndDate from '../../core/query-filter/custom/SelectStartEndDate'
 
-import {fetchDoctorList} from '../../actions'
+import {fetchDoctorList} from '../../../actions'
+import AddDoctor from './AddDoctor'
 
 class DoctorAuditing extends BasePage {
 
@@ -26,9 +26,20 @@ class DoctorAuditing extends BasePage {
   }
 
   fetch() {
-    this.pageInfo = this.refs.paginateList.getPageInfo()
-    this.filterConditions = this.refs.queryFilter.getFilterConditions()
+    this.setState({currentIndex: -1})
+    this.filterConditions = this._queryFilter.getFilterConditions()
+    this.pageInfo = this._paginateList.getPageInfo()
     this.props.fetchDoctorList(merge({}, this.pageInfo, this.handleFilterConditions()))
+  }
+
+  filter(filterConditions) {
+    this.filterConditions = filterConditions
+    this.fetch()
+  }
+
+  getPageList(pageInfo) {
+    this.pageInfo = pageInfo
+    this.fetch()
   }
 
   handleFilterConditions() {
@@ -39,6 +50,10 @@ class DoctorAuditing extends BasePage {
 
   activeItem(doctor, index) {
     this.setState({currentIndex: index})
+  }
+
+  addDoctor() {
+    this._addDoctor.open()
   }
 
   editDoctor(doctor) {
@@ -53,11 +68,13 @@ class DoctorAuditing extends BasePage {
 
   }
 
+  componentDidMount() {
+    this.fetch()
+  }
 
   render() {
     let self = this;
-    let doctorList = this.props.doctorList
-    let listInfo = []
+    let {doctorList, total} = this.props.doctorListInfo
 
     function showDoctorPhoto(doctor) {
       if (doctor['doctor_Photo']) {
@@ -83,9 +100,10 @@ class DoctorAuditing extends BasePage {
 
     return (
       <div className="app-function-page">
-
-        <QueryFilter ref="queryFilter" filter={()=>this.fetch()} className="big-label ">
-          <button className="btn btn-primary mr-20" ng-click="doctorAuditing.addDoctor();">注册</button>
+        <AddDoctor ref={c=>this._addDoctor = c}/>
+        <QueryFilter ref={c=>this._queryFilter = c} filter={filterCondition=>this.filter(filterCondition)}
+                     className="big-label ">
+          <button className="btn btn-primary mr-20" onClick={e=>this.addDoctor()}>注册</button>
           <button className="btn btn-primary mr-20"
                   onClick={this.editDoctor()}
                   disabled={this.state.currentIndex == -1}>查看
@@ -99,7 +117,7 @@ class DoctorAuditing extends BasePage {
           </FilterItem>
         </QueryFilter>
 
-        <PaginateList ref="paginateList" fetch={()=>this.fetch()} listInfo={listInfo}>
+        <PaginateList ref={c=>this._paginateList = c} getPageList={pageInfo=>this.getPageList(pageInfo)} total={total}>
           <table className="table table-striped table-hover" style={{'minWidth': '1200px'}}>
             <thead>
             <tr>
@@ -163,7 +181,7 @@ class DoctorAuditing extends BasePage {
 
 function mapStateToProps(state, props) {
   return {
-    doctorList: state.fetchDoctorList,
+    doctorListInfo: state.doctorListInfo,
     hospitalList: {
       typeCode: 'hospital',
       typeText: '医院',
